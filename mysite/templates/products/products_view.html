@@ -1,0 +1,88 @@
+{% extends 'main.html' %}
+
+{% block content %}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.4/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.3.4/css/select.dataTables.min.css">
+        <table id="example" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Position</th>
+                    <th>Office</th>
+                </tr>
+            </thead>
+        </table>
+        <button id="delete" class="btn btn-danger" type="submit">Delete</button>
+
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+            TEST MODAL
+        </button>
+
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                ...
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/select/1.3.4/js/dataTables.select.min.js"></script>
+    <script>
+
+        table = $('#example').DataTable({
+            ajax: '../products/product_data',
+            responsive: true
+        });
+
+        $('#example tbody').on( 'click', 'tr', function () {
+            $(this).toggleClass('selected');
+        } );
+
+        $('#delete').click( function () {
+            var table_labels = {{ table_labels | safe }};
+            var data = table.rows(['.selected']).data().toArray();
+
+            $.ajax({
+                url: '../products/delete_rows',
+                type: 'POST',
+                dataType: 'json',
+                data: {'rows': JSON.stringify( data )},
+                success: function (response){
+                    console.log( response.data )
+                    console.log( 'Reloading page...' )
+                    window.location.reload()
+                }
+            });
+        } );
+
+        $('#edit').click( function () {
+            var table_labels = {{ table_labels | safe }};
+            var data = table.rows(['.selected']).data().toArray();
+
+            $.ajax({
+                url: '../products/edit_row',
+                type: 'POST',
+                dataType: 'json',
+                data: {'rows': JSON.stringify( data )},
+                success: function (response){
+                    console.log( response.data )
+                }
+            });
+        } );
+    </script>
+
+{% endblock %}
