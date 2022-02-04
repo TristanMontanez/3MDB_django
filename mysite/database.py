@@ -1,4 +1,5 @@
 import mysql.connector
+import csv
 
 from mysql.connector import Error
 from typing import List
@@ -72,7 +73,7 @@ class Database:
 
         :param sql_filters: SQL Condition
         :param sql_table: SQL Table Name
-        :return: None
+        :return: query
         """
         filters = ''
         for key, value in sql_filters.items():
@@ -90,9 +91,51 @@ class Database:
         else:
             return False
 
-    def populate_db(self):
-        for i in range(5000):
-            z = str(i).zfill(4)
-            query = f'INSERT INTO test_table (full_name, age, position, office)' \
-                    f' VALUES ("name_{z}", {z}, "position_{z}", "office_{z}")'
-            self.execute_query(query)
+    def edit_item(self, sql_filters: dict, sql_table: str, sql_updates):
+        """
+        Edits item based on sql_updates
+
+        :param sql_filters: SQL Condition
+        :param sql_table: SQL Table Name
+        :param sql_updates: SQL Updates
+        :return: query
+        """
+        filters = ''
+        for key, value in sql_filters.items():
+            filters += ' AND ' if filters else ''
+            delimiter = '","'
+            if type(value) is list:
+                filters += f'{key} IN ("{delimiter.join(value)}")'
+            else:
+                filters += f'{key}="{value}"'
+
+        updates = ''
+        for key, value in sql_updates.items():
+            updates += ', ' if updates else ''
+            delimiter = '","'
+            if type(value) is list:
+                updates += f'{key} IN ("{delimiter.join(value)}")'
+            else:
+                updates += f'{key}="{value}"'
+
+        query = f'UPDATE {sql_table} SET {updates} WHERE {filters}'
+        print(query)
+        if self.execute_query(query):
+            return query
+        else:
+            return False
+
+    # def populate_db(self):
+    #     with open('product_db.csv', newline='') as f:
+    #         reader = csv.reader(f)
+    #         for row in reader:
+    #             row[0] = 'product_' + row[0]
+    #             row[1] = row[1].replace('_', ' ')
+    #             quoted = []
+    #             for item in row:
+    #                 quoted.append(f'"{item}"')
+    #             values = ', '.join(quoted)
+    #             query = f"INSERT INTO product_table (product_key, product_name, price) VALUES ({values})"
+    #             self.execute_query(query)
+    #             print(query)
+
