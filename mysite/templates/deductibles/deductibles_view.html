@@ -13,13 +13,24 @@
                 </tr>
             </thead>
         </table>
-        <button id="delete" class="btn btn-danger" type="submit">Delete</button>
+        <div class="container">
+            <button id="delete" type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" disabled>
+                Delete
+            </button>
+            <button id="edit" type="button" class="btn btn-primary" data-toggle="modal" data-target="#editModal" disabled>
+                Edit
+            </button>
+            <div style="margin-top: 4px">
+                <button id="deselect" type="button" class="btn btn-secondary" disabled>
+                    Deselect All
+                </button>
+            </div>
+        </div>
 
-        <button id="edit" type="button" class="btn btn-primary" data-toggle="modal" data-target="#editModal">
-            Edit
-        </button>
     </div>
-        <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+
+<!---------------------------MODALS--------------------------->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
@@ -48,15 +59,39 @@
             </div>
           </div>
         </div>
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Deductible</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p id="deleteModalBody"></p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button id="deleteConfirm" type="button" class="btn btn-danger">Confirm Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
     <script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/select/1.3.4/js/dataTables.select.min.js"></script>
     <script>
+        var deleteBtn = document.getElementById("delete");
+        var editBtn = document.getElementById("edit");
+        var deselectBtn = document.getElementById("deselect");
 
         table = $('#deductiblesTable').DataTable({
             ajax: '../deductibles/deductible_data',
             responsive: true,
-            scrollY: '51.5vh',
+            scrollY: '53vh',
             scrollCollapse: true,
             columnDefs : [
                 { "width": "15%", "targets": 0 },
@@ -66,9 +101,14 @@
 
         $('#deductiblesTable tbody').on( 'click', 'tr', function () {
             $(this).toggleClass('selected');
+            checkBtnStatus();
         } );
 
         $('#delete').click( function () {
+            document.getElementById( "deleteModalBody" ).innerHTML = `Confirm Delete ${table.rows(['.selected']).data().length} item/s?`;
+        } );
+
+        $('#deleteConfirm').click( function () {
             var data = table.rows(['.selected']).data().toArray();
 
             $.ajax({
@@ -115,14 +155,39 @@
                 url: '../deductibles/edit_row',
                 type: 'POST',
                 dataType: 'json',
-                data: {'deductibles_key': JSON.stringify( editedRow )},
+                data: {'deductible_key': JSON.stringify( editedRow )},
                 success: function (response){
-                    console.log( response.data );
-                    console.log( 'Reloading page...' );
-                    window.location.reload();
+                    console.log( response.data )
+                    console.log( 'Reloading page...' )
+                    window.location.reload()
                 }
             });
         } );
+
+        $('#deselect').click( function () {
+            table
+                .rows( '.selected' )
+                .nodes()
+                .to$()
+                .removeClass( 'selected' );
+            checkBtnStatus();
+        } );
+
+        function checkBtnStatus() {
+            if ( table.rows(['.selected']).data().length == 1 ){
+                editBtn.disabled = false;
+            } else {
+                editBtn.disabled = true;
+            }
+
+            if ( table.rows(['.selected']).data().length > 0 ){
+                deselectBtn.disabled = false;
+                deleteBtn.disabled = false;
+            } else {
+                deselectBtn.disabled = true;
+                deleteBtn.disabled = true;
+            }
+        }
 
     </script>
 

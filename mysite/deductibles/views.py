@@ -1,11 +1,10 @@
 import time
 import json
-from django.shortcuts import render, redirect
-from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from database import Database
-# Create your views here.
 
 SQL_TABLE = 'deductible_table'
 SQL_COLUMNS = ['deductible_key', 'deductible_name','price']
@@ -64,7 +63,7 @@ def edit_row(request):
                                            sql_columns=SQL_COLUMNS,
                                            sql_filters={})
     columns = items[0]
-    edited_row = json.loads(request.POST.get('deductibles_key'))
+    edited_row = json.loads(request.POST.get('deductible_key'))
     sql_filters = {columns[0]: edited_row[0]}
     sql_update = {}
     for i in range(1, len(columns)):

@@ -1,5 +1,6 @@
 import mysql.connector
 import csv
+from datetime import date
 
 from mysql.connector import Error
 from typing import List
@@ -54,11 +55,12 @@ class Database:
                 filters += f'{key} = "{value}"'
                 filter_label += f'{value}'
 
-        query = f'SELECT {", ".join(sql_columns)} FROM {sql_table}'
+        query = f'SELECT {", ".join(sql_columns)} FROM {sql_table} '
         query += f'WHERE {filters}' if filters else ''
+        print(query)
 
         self.__cursor.execute(query)
-        result =self.__cursor.fetchall()
+        result = self.__cursor.fetchall()
         data = [sql_columns]
         for item in result:
             data_row = [str(item[0])]
@@ -125,17 +127,44 @@ class Database:
         else:
             return False
 
-    # def populate_db(self):
-    #     with open('product_db.csv', newline='') as f:
-    #         reader = csv.reader(f)
-    #         for row in reader:
-    #             row[0] = 'product_' + row[0]
-    #             row[1] = row[1].replace('_', ' ')
-    #             quoted = []
-    #             for item in row:
-    #                 quoted.append(f'"{item}"')
-    #             values = ', '.join(quoted)
-    #             query = f"INSERT INTO product_table (product_key, product_name, price) VALUES ({values})"
-    #             self.execute_query(query)
-    #             print(query)
+    def insert_orders(self, customer_id: str, orders: dict):
+        """
+        Inserts items  to orders_table
 
+        :param customer_id: Customer ID
+        :param orders: Orders
+        :return:
+        """
+        for key in orders:
+            query = f'INSERT INTO order_table (order_date, customer_id, product_id, qty, total) ' \
+                    f'VALUES ("{date.today()}", "{customer_id}", "{key}", "{orders.get(key)[0]}", "{orders.get(key)[1]}")'
+            print(query)
+            self.__cursor.execute(query)
+        self.__connection.commit()
+
+    def populate_db_product(self):
+        with open('product_db.csv', newline='') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                row[0] = 'product_' + row[0]
+                row[1] = row[1].replace('_', ' ')
+                quoted = []
+                for item in row:
+                    quoted.append(f'"{item}"')
+                values = ', '.join(quoted)
+                query = f"INSERT INTO product_table (product_key, product_name, price) VALUES ({values})"
+                self.execute_query(query)
+                print(query)
+
+    def populate_db_customer(self):
+        with open('customer_db.csv', newline='') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                row[1] = row[1].replace('_', ' ')
+                quoted = []
+                for item in row:
+                    quoted.append(f'"{item}"')
+                values = ', '.join(quoted)
+                query = f"INSERT INTO customer_table (customer_key, customer_name, department) VALUES ({values})"
+                self.execute_query(query)
+                print(query)

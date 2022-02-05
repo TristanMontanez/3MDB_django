@@ -21,7 +21,6 @@
             z-index: 1;
             top: 0;
             left: 0;
-            background-color: #2A3248;
             overflow-x: hidden;
             padding-top: 20px;
         }
@@ -68,7 +67,7 @@
         #sidebar ul li.active>a,
         a[aria-expanded="true"] {
             color: #fff;
-            background: #FF6A3D;
+            background: #0275d8;
         }
 
         a[data-toggle="collapse"] {
@@ -110,7 +109,7 @@
     <div class="wrapper">
         <!-- Sidebar  -->
         <nav id="sidebar">
-            <div class="sidenav">
+            <div class="sidenav bg-dark">
                 <div class="sidebar-header">
                     <h3 style="text-align: center">3M</h3>
                 </div>
@@ -118,7 +117,7 @@
                 <ul class="list-unstyled components">
                     <p style="text-align: center">Records Database</p>
                     <li>
-                        <a style="color: #FFF" href="home">Home</a>
+                        <a style="color: #FFF" href="{% url 'home_view' %}">Home</a>
                     </li>
                     <li>
                         <a style="color: #FFF" href="#customersSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Customers</a>
@@ -135,10 +134,10 @@
                         <a style="color: #FFF" href="#pricesSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Prices</a>
                         <ul class="collapse list-unstyled" id="pricesSubmenu">
                             <li>
-                                <a style="color: #FFF" href="#">Grocery</a>
+                                <a style="color: #FFF" href="{% url 'products_view' %}">Grocery</a>
                             </li>
                             <li>
-                                <a style="color: #FFF" href="#">Deductibles</a>
+                                <a style="color: #FFF" href="{% url 'deductibles_view' %}">Deductibles</a>
                             </li>
                         </ul>
                     </li>
