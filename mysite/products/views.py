@@ -5,7 +5,6 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from database import Database
-# Create your views here.
 
 SQL_TABLE = 'product_table'
 SQL_COLUMNS = ['product_key', 'product_name', 'price']
