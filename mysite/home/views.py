@@ -1,4 +1,5 @@
 import json
+from datetime import date
 
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -8,6 +9,7 @@ from database import Database
 
 PRODUCT_TABLE = 'product_table'
 CUSTOMER_TABLE = 'customer_table'
+ORDER_TABLE = 'order_table'
 
 DATABASE = Database()
 PRODUCT_DATA, _ = DATABASE.read_from_database(sql_table=PRODUCT_TABLE,
@@ -34,7 +36,6 @@ def home_view(request):
 @csrf_exempt
 def submit_order(request):
     order_data = json.loads(request.POST.get('order_data'))
-    print(f'order data: {order_data}')
     customer_name = order_data.get('customer_name')
     customer_id, _ = DATABASE.read_from_database(sql_filters={'customer_name': customer_name},
                                                  sql_columns=['customer_key'],
@@ -57,3 +58,18 @@ def submit_order(request):
                            orders=orders)
 
     return JsonResponse({'data': request.POST.get('order_data')})
+
+
+def recent_orders(request):
+    order_data, _ = DATABASE.read_from_database(sql_table=ORDER_TABLE,
+                                                sql_columns=['customer_id', 'total', 'order_date'],
+                                                sql_filters={'order_date': date.today()})
+    recent = []
+    for order in order_data[1::]:
+        customer_name, _ = DATABASE.read_from_database(sql_table=CUSTOMER_TABLE,
+                                                       sql_columns=['customer_name'],
+                                                       sql_filters={'customer_key': order[0]})
+        customer_name = customer_name[1][0]
+        recent.append([customer_name, order[1], order[2]])
+
+    return JsonResponse({'data': recent})

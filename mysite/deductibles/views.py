@@ -32,7 +32,6 @@ def deductibles_data(request):
     items, _ = database.read_from_database(sql_table=SQL_TABLE,
                                            sql_columns=SQL_COLUMNS,
                                            sql_filters={})
-
     return JsonResponse({'data': items[1::]})
 
 
