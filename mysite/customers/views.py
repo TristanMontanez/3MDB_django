@@ -29,6 +29,35 @@ def customers_view(request):
     return page
 
 
+def history_view(request):
+    start = time.time()
+    database = Database()
+    items, _ = database.read_from_database(sql_table='order_table',
+                                           sql_columns=['order_key', 'order_date', 'customer_id',
+                                                        'product_id', 'qty', 'total'],
+                                           sql_filters={})
+    columns = ['KEY', 'DATE ORDERED', 'CUSTOMER NAME', 'PRODUCT NAME', 'QTY', 'TOTAL']
+
+    for item in items[1::]:
+        item[1] = item[1].strftime('%B %d, %Y')
+
+        customer_name, _ = database.read_from_database(sql_table='customer_table',
+                                                       sql_columns=['customer_name'],
+                                                       sql_filters={'customer_key': item[2]})
+        item[2] = customer_name[1][0]
+
+        product_name, _ = database.read_from_database(sql_table='product_table',
+                                                      sql_columns=['product_name'],
+                                                      sql_filters={'product_key': item[3]})
+        item[3] = product_name[1][0]
+
+    context = {'columns': columns, 'items': items[1::]}
+    print(f'Read Time: {time.time() - start}')
+    page = render(request, 'customers/purchase_history.html', context)
+    print(f'Render: {time.time() - start}')
+    return page
+
+
 def customer_data(request):
     database = Database()
     items, _ = database.read_from_database(sql_table=SQL_TABLE,
@@ -43,6 +72,7 @@ def register_customer(request):
     keys, _ = database.read_from_database(sql_table=SQL_TABLE,
                                           sql_columns=['customer_key'],
                                           sql_filters={})
+    database.populate_db_product()
     max_key = 0
     for key in keys[1::]:
         key_str = key[0][9::].lstrip('0')

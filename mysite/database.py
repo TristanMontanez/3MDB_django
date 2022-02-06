@@ -177,7 +177,6 @@ class Database:
             reader = csv.reader(f)
             for row in reader:
                 row[0] = 'product_' + row[0]
-                row[1] = row[1].rstrip('_UTANG')
                 row[1] = row[1].replace('_', ' ')
                 quoted = []
                 for item in row:

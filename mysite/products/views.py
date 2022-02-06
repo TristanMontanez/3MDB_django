@@ -76,6 +76,7 @@ def edit_row(request):
 
     return JsonResponse({'data': query})
 
+
 @csrf_exempt
 def add_product(request):
     database = Database()
