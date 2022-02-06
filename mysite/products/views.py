@@ -75,3 +75,23 @@ def edit_row(request):
     print(query)
 
     return JsonResponse({'data': query})
+
+@csrf_exempt
+def add_product(request):
+    database = Database()
+    keys, _ = database.read_from_database(sql_table=SQL_TABLE,
+                                          sql_columns=['product_key'],
+                                          sql_filters={})
+    max_key = 0
+    for key in keys[2::]:
+        key_str = key[0][8::].lstrip('0')
+        key_int = int(key_str)
+        if key_int > max_key:
+            max_key = key_int
+    if request.POST.get('product_name') and request.POST.get('price'):
+        query = database.insert_product(product_key=f'Product_{str(max_key+1).zfill(4)}',
+                                        product_name=request.POST.get('product_name'),
+                                        price=request.POST.get('price'))
+        return JsonResponse({'data': query})
+    else:
+        return JsonResponse({'data': 'ERROR IN REGISTER'})

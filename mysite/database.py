@@ -129,7 +129,7 @@ class Database:
 
     def insert_orders(self, customer_id: str, orders: dict):
         """
-        Inserts items  to orders_table
+        Inserts items to order_table
 
         :param customer_id: Customer ID
         :param orders: Orders
@@ -142,11 +142,42 @@ class Database:
             self.__cursor.execute(query)
         self.__connection.commit()
 
+    def insert_customer(self, customer_key: str, customer_name: str, department: str):
+        """
+        Inserts item to customer_table
+
+        :param customer_key: SQL Primary Key
+        :param customer_name: Customer Name
+        :param department: Department
+        :return:
+        """
+        query = f'INSERT INTO customer_table (customer_key, customer_name, department) ' \
+                f'VALUES ("{customer_key}", "{customer_name}", "{department}")'
+        print(query)
+        self.execute_query(query)
+        return query
+
+    def insert_product(self, product_key: str, product_name: str, price: int):
+        """
+        Inserts item to customer_table
+
+        :param product_key: SQL Primary Key
+        :param product_name: Product Name
+        :param price: Name
+        :return:
+        """
+        query = f'INSERT INTO product_table (product_key, product_name, price) ' \
+                f'VALUES ("{product_key}", "{product_name}", "{price}")'
+        print(query)
+        self.execute_query(query)
+        return query
+
     def populate_db_product(self):
         with open('product_db.csv', newline='') as f:
             reader = csv.reader(f)
             for row in reader:
                 row[0] = 'product_' + row[0]
+                row[1] = row[1].rstrip('_UTANG')
                 row[1] = row[1].replace('_', ' ')
                 quoted = []
                 for item in row:

@@ -14,6 +14,9 @@
             </thead>
         </table>
         <div class="container">
+            <button id="add" type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">
+                Add New
+            </button>
             <button id="delete" type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" disabled>
                 Delete
             </button>
@@ -30,6 +33,35 @@
     </div>
 
 <!---------------------------MODALS--------------------------->
+
+    <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Add Customer</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                  <table id="addTable" class="table">
+                      <tr>
+                          <th>Product Name</th>
+                          <td><input type="text" size="30"></td>
+                      </tr>
+                      <tr>
+                          <th>Price</th>
+                          <td><input type="number" min="0" size="5"></td>
+                      </tr>
+                  </table>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button id="addConfirm" type="button" class="btn btn-primary">Submit</button>
+              </div>
+            </div>
+          </div>
+        </div>
     <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -102,6 +134,24 @@
         $('#productsTable tbody').on( 'click', 'tr', function () {
             $(this).toggleClass('selected');
             checkBtnStatus();
+        } );
+
+        $('#addConfirm').click( function () {
+            var addTb = document.getElementById("addTable");
+            var name = addTb.rows[0].cells[1].children[0].value;
+            var price = addTb.rows[1].cells[1].children[0].value;
+
+            $.ajax({
+                url: '../products/add_product',
+                type: 'POST',
+                dataType: 'json',
+                data: {'product_name': name, 'price': price},
+                success: function (response){
+                    console.log( response.data );
+                    window.location.reload()
+                }
+            });
+
         } );
 
         $('#delete').click( function () {

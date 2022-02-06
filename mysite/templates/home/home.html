@@ -36,7 +36,7 @@
                                  <thead>
                                     <tr colspawn="3">
                                         <th>Name: <input list="customer_names" size="50"></th>
-                                        <th style="text-align: right"><button onclick="addRow()" class="btn btn-primary">Add row</button> <button class="btn btn-primary" onclick="submitOrder()">Submit Order</button></th>
+                                        <th style="text-align: right"><button onclick="addRow()" class="btn btn-primary">Add row</button> <button data-toggle="modal" data-target="#submitModal" class="btn btn-primary">Submit Order</button></th>
                                     </tr>
                                     <tr>
                                         <th>Product Name</th>
@@ -70,6 +70,26 @@
                             </thead>
                         </table>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="submitModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="submitModalLabel">Customer Order</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="submitModalBody"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button id="submitConfirm" type="button" class="btn btn-primary" onclick="submitOrder()">Confirm</button>
                 </div>
             </div>
         </div>

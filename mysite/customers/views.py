@@ -8,6 +8,8 @@ from database import Database
 
 SQL_TABLE = 'customer_table'
 SQL_COLUMNS = ['customer_key', 'customer_name', 'department']
+DEPARTMENTS = ['ICING', 'ICING(DAILY)', 'QC', 'BREAD', 'BISCUIT', 'CANDY',
+               'FORMULATION', 'WAREHOUSE', 'PACKING']
 
 
 def customers_view(request):
@@ -32,5 +34,71 @@ def customer_data(request):
     items, _ = database.read_from_database(sql_table=SQL_TABLE,
                                            sql_columns=SQL_COLUMNS,
                                            sql_filters={})
-    print(items)
     return JsonResponse({'data': items[1::]})
+
+
+@csrf_exempt
+def register_customer(request):
+    database = Database()
+    keys, _ = database.read_from_database(sql_table=SQL_TABLE,
+                                          sql_columns=['customer_key'],
+                                          sql_filters={})
+    max_key = 0
+    for key in keys[1::]:
+        key_str = key[0][9::].lstrip('0')
+        key_int = int(key_str)
+        if key_int > max_key:
+            max_key = key_int
+
+    if request.POST.get('customer_name') and request.POST.get('department'):
+        query = database.insert_customer(customer_key=f'Customer_{str(max_key+1).zfill(4)}',
+                                         customer_name=request.POST.get('customer_name'),
+                                         department=request.POST.get('department'))
+        return JsonResponse({'data': query})
+    else:
+        return JsonResponse({'data': 'ERROR IN REGISTER'})
+
+
+@csrf_exempt
+def delete_rows(request):
+    database = Database()
+    items, _ = database.read_from_database(sql_table=SQL_TABLE,
+                                           sql_columns=SQL_COLUMNS,
+                                           sql_filters={})
+    columns = items[0]
+    query = ''
+    rows = json.loads(request.POST.get('rows'))
+    for row in rows:
+        sql_filters = {}
+        for i in range(len(row)):
+            sql_filters[columns[i]] = row[i]
+        query = database.delete_item(sql_filters=sql_filters,
+                                     sql_table=SQL_TABLE)
+        print(query)
+
+    return JsonResponse({'data': query})
+
+
+@csrf_exempt
+def edit_row(request):
+    print(edit_row)
+    database = Database()
+    items, _ = database.read_from_database(sql_table=SQL_TABLE,
+                                           sql_columns=SQL_COLUMNS,
+                                           sql_filters={})
+    columns = items[0]
+    edited_row = json.loads(request.POST.get('customer_key'))
+    sql_filters = {columns[0]: edited_row[0]}
+    sql_update = {}
+    if edited_row[2] not in DEPARTMENTS:
+        return JsonResponse({'data': 'INVALID DEPARTMENT'})
+
+    for i in range(1, len(columns)):
+        sql_update[columns[i]] = edited_row[i]
+
+    query = database.edit_item(sql_table=SQL_TABLE,
+                               sql_filters=sql_filters,
+                               sql_updates=sql_update)
+    print(query)
+
+    return JsonResponse({'data': query})
