@@ -72,7 +72,6 @@ def register_customer(request):
     keys, _ = database.read_from_database(sql_table=SQL_TABLE,
                                           sql_columns=['customer_key'],
                                           sql_filters={})
-    database.populate_db_product()
     max_key = 0
     for key in keys[1::]:
         key_str = key[0][9::].lstrip('0')

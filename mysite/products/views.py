@@ -83,6 +83,7 @@ def add_product(request):
     keys, _ = database.read_from_database(sql_table=SQL_TABLE,
                                           sql_columns=['product_key'],
                                           sql_filters={})
+    database.populate_db_product()
     max_key = 0
     for key in keys[2::]:
         key_str = key[0][8::].lstrip('0')
