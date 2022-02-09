@@ -64,12 +64,23 @@ def recent_orders(request):
     order_data, _ = DATABASE.read_from_database(sql_table=ORDER_TABLE,
                                                 sql_columns=['customer_id', 'total', 'order_date'],
                                                 sql_filters={'order_date': date.today()})
-    recent = []
+    recent = {}
+    customer_names = []
     for order in order_data[1::]:
+        print(order)
         customer_name, _ = DATABASE.read_from_database(sql_table=CUSTOMER_TABLE,
                                                        sql_columns=['customer_name'],
                                                        sql_filters={'customer_key': order[0]})
         customer_name = customer_name[1][0]
-        recent.append([customer_name, order[1], order[2]])
+        if customer_name in customer_names:
+            recent[customer_name] = recent[customer_name] + order[1]
+        else:
+            customer_names.append(customer_name)
+            recent[customer_name] = order[1]
 
-    return JsonResponse({'data': recent})
+    print(f'Recent Orders: {recent}')
+    table_data = []
+    for key in recent:
+        table_data.append([key, recent[key], date.today()])
+
+    return JsonResponse({'data': table_data})
