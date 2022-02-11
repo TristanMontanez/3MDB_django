@@ -36,7 +36,7 @@
                                  <thead>
                                     <tr colspawn="3">
                                         <th>Name: <input list="customer_names" size="50"></th>
-                                        <th style="text-align: right"><button onclick="addRow()" class="btn btn-primary">Add row</button> <button data-toggle="modal" data-target="#submitModal" class="btn btn-primary">Submit Order</button></th>
+                                        <th style="text-align: right"><button onclick="addRow()" class="btn btn-primary">Add row</button> <button data-toggle="modal" data-target="#submitModal" class="btn btn-primary" onclick="createConfirmTable()">Submit Order</button></th>
                                     </tr>
                                     <tr>
                                         <th>Product Name</th>
@@ -68,6 +68,8 @@
                                     <th>Date</th>
                                 </tr>
                             </thead>
+                            <tbody>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -75,17 +77,39 @@
         </div>
     </div>
 
-    <div class="modal fade" id="submitModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal fade" id="submitModal" tabindex="-1" role="dialog" aria-labelledby="submitModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="submitModalLabel">Customer Order</h5>
+                    <h5 class="modal-title" id="submitModalLabel">
+                        Confirm Customer Order
+                    </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p id="submitModalBody"></p>
+                    <table class="table tableConfirm">
+
+                    </table>
+                    <table class="table tableConfirm" id="confirmTable">
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Qty</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="confirmTableBody">
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th></th>
+                                <th>Total</th>
+                                <th id="orderTotalCell"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -124,20 +148,46 @@
             qtyCell.innerHTML = `<input type="number" min="0">`
         }
 
-        function submitOrder() {
-            var orderTb = document.getElementById("orderTable");
+        function createConfirmTable() {
+            var data = getOrderObj();
+            var confirmTb = document.getElementById('confirmTable');
+            var orderTb = document.getElementById("orderTable").;
             var r = orderTb.rows.length;
-            var name = orderTb.rows[0].cells[0].children[0].value;
-            data = {"customer_name": name, "order": []};
-
-            for (let i = 2; i < r; i++) {
-                order_obj = {};
-                product_name = orderTb.rows[i].cells[0].children[0].value;
-                qty =  orderTb.rows[i].cells[1].children[0].value;
-                order_obj[product_name] = qty
-                data.order.push(order_obj);
+            console.log( 'Creating Confirm Table' );
+            var rowCount = confirmTb.rows.length;
+            for (var i = rowCount - 2; i > 0; i--) {
+                confirmTb.deleteRow(i);
             }
 
+            $.ajax({
+                url: '../get_price',
+                type: 'POST',
+                dataType: 'json',
+                data: {'order_data': JSON.stringify( data )},
+                success: function (response){
+                    console.log( response.data );
+                    orderTotalCell = document.getElementById('orderTotalCell');
+                    orderTotalCell.innerHTML = response.total;
+
+                    for (let i = 2; i < r; i++) {
+                        product_name = orderTb.rows[i].cells[0].children[0].value;
+                        qty =  orderTb.rows[i].cells[1].children[0].value;
+
+                        var newRow = confirmTb.insertRow();
+                        var nameCell = newRow.insertCell();
+                        var qtyCell = newRow.insertCell();
+                        var totalCell = newRow.insertCell();
+
+                        nameCell.innerHTML = product_name;
+                        qtyCell.innerHTML = qty;
+                        totalCell.innerHTML = response.data[i-2];
+                    };
+                }
+            });
+        }
+
+        function submitOrder() {
+            var data = getOrderObj();
             console.log( data );
 
             $.ajax({
@@ -150,6 +200,22 @@
                     window.location.reload();
                 }
             });
+        }
+
+        function getOrderObj() {
+            var orderTb = document.getElementById("orderTable");
+            var r = orderTb.rows.length;
+            var name = orderTb.rows[0].cells[0].children[0].value;
+            data = {"customer_name": name, "order": []};
+
+            for (let i = 2; i < r; i++) {
+                order_obj = {};
+                product_name = orderTb.rows[i].cells[0].children[0].value;
+                qty =  orderTb.rows[i].cells[1].children[0].value;
+                order_obj[product_name] = qty
+                data.order.push(order_obj);
+            }
+            return data;
         }
 
     </script>

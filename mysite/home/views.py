@@ -84,3 +84,23 @@ def recent_orders(request):
         table_data.append([key, recent[key], date.today()])
 
     return JsonResponse({'data': table_data})
+
+
+@csrf_exempt
+def get_price(request):
+    order_data = json.loads(request.POST.get('order_data'))
+    product_totals = []
+    print(f'order_data: {order_data}')
+    for order in order_data.get('order'):
+        product_name = list(order.keys())[0]
+        if product_name:
+            qty = int(order.get(product_name))
+            product_price, _ = DATABASE.read_from_database(sql_filters={'product_name': product_name},
+                                                           sql_columns=['price'],
+                                                           sql_table=PRODUCT_TABLE)
+            product_price = product_price[1][0]
+            if product_price:
+                total = int(product_price)*qty
+                product_totals.append(total)
+
+    return JsonResponse({'data': product_totals, 'total': sum(product_totals)})
