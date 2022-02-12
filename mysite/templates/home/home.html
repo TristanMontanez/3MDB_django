@@ -96,19 +96,20 @@
                         <thead>
                             <tr>
                                 <th>Product Name</th>
-                                <th>Qty</th>
-                                <th>Total</th>
+                                <th style="text-align: right">Qty</th>
+                                <th style="text-align: right">Total</th>
                             </tr>
                         </thead>
                         <tbody id="confirmTableBody">
                         </tbody>
-                        <tfoot>
+                    </table>
+                    <table class="table">
+                        <thead>
                             <tr>
-                                <th></th>
-                                <th>Total</th>
-                                <th id="orderTotalCell"></th>
+                                <th>Order Total:</th>
+                                <th style="text-align: right" id="orderTotalCell">0</th>
                             </tr>
-                        </tfoot>
+                        </thead>
                     </table>
                 </div>
                 <div class="modal-footer">
@@ -151,11 +152,11 @@
         function createConfirmTable() {
             var data = getOrderObj();
             var confirmTb = document.getElementById('confirmTable');
-            var orderTb = document.getElementById("orderTable").;
+            var orderTb = document.getElementById("orderTable");
             var r = orderTb.rows.length;
             console.log( 'Creating Confirm Table' );
             var rowCount = confirmTb.rows.length;
-            for (var i = rowCount - 2; i > 0; i--) {
+            for (var i = rowCount - 1; i > 0; i--) {
                 confirmTb.deleteRow(i);
             }
 
@@ -170,6 +171,8 @@
                     orderTotalCell.innerHTML = response.total;
 
                     for (let i = 2; i < r; i++) {
+                        console.log(i);
+                        console.log(response.data[i-2]);
                         product_name = orderTb.rows[i].cells[0].children[0].value;
                         qty =  orderTb.rows[i].cells[1].children[0].value;
 
@@ -179,7 +182,9 @@
                         var totalCell = newRow.insertCell();
 
                         nameCell.innerHTML = product_name;
+                        qtyCell.style.textAlign = "right";
                         qtyCell.innerHTML = qty;
+                        totalCell.style.textAlign = "right";
                         totalCell.innerHTML = response.data[i-2];
                     };
                 }
