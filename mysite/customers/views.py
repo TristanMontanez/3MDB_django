@@ -109,6 +109,26 @@ def delete_rows(request):
 
 
 @csrf_exempt
+def delete_rows_history(request):
+    database = Database()
+    items, _ = database.read_from_database(sql_table='order_table',
+                                           sql_columns=['order_key'],
+                                           sql_filters={})
+    columns = items[0]
+    queries = []
+    rows = json.loads(request.POST.get('rows'))
+    print(f'rows:{rows}')
+    sql_filters = {}
+    for row in rows:
+        query = database.delete_item(sql_filters={columns[0]: row[0]},
+                                     sql_table='order_table')
+        queries.append(query)
+    print(queries)
+
+    return JsonResponse({'data': queries})
+
+
+@csrf_exempt
 def edit_row(request):
     print(edit_row)
     database = Database()

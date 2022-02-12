@@ -8,5 +8,6 @@ urlpatterns = [
     path('customer_data', views.customer_data, name='customer_data'),
     path('register_customer', views.register_customer, name='register_customer'),
     path('delete_rows', views.delete_rows, name='delete_rows'),
+    path('delete_rows_history', views.delete_rows_history, name='delete_rows_history'),
     path('edit_row', views.edit_row, name='edit_row')
 ]
